@@ -33,6 +33,10 @@ vows.describe('errs').addBatch({
       "should register the prototype": function () {
         errs.register('named', fixtures.NamedError);
         assert.equal(errs.registered['named'], fixtures.NamedError);
+      },
+      "should register an error without providing its name": function () {
+        errs.register(fixtures.AnError);
+        assert.equal(errs.registered['anerror'], fixtures.AnError);
       }
     },
     "the create() method with": {
@@ -64,8 +68,7 @@ vows.describe('errs').addBatch({
       "with no callback": {
         topic: function () {
           var err = this.err = errs.create('Some emitted error'),
-              emitter = errs.handle(err);
-              
+              emitter = errs.handle(err);              
           emitter.once('error', this.callback.bind(this, null));
         },
         "should invoke the callback with the error": function (_, err) {
