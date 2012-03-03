@@ -4,6 +4,7 @@ Simple error creation and passing utilities focused on:
 
 * [Creating Errors](#creating-errors)
 * [Reusing Error Types](#reusing-types)
+* [Merging with Existing Errors](#merging-errors)
 * [Optional Callback Invocation](#optional-invocation)
 
 <a name="creating-errors" />
@@ -90,6 +91,30 @@ The output from the two files above is shown below. Notice how it contains no re
   '    at EventEmitter._tickCallback (node.js:192:40)' ]
 ```
 
+<a name="merging-errors" />
+## Merging with Existing Errors
+
+When working with errors you catch or are returned in a callback you can extend those errors with properties by using the `errs.merge` method. This will also create a human readable error message and stack-trace:
+
+``` js
+process.on('uncaughtException', function(err) {
+  console.log(errs.merge(err, {namespace: 'uncaughtException'}));
+});
+
+var file = fs.createReadStream('FileDoesNotExist.here');
+```
+
+``` js
+{ [Error: Unspecified error]
+  name: 'Error',
+  namespace: 'uncaughtException',
+  errno: 34,
+  code: 'ENOENT',
+  path: 'FileDoesNotExist.here',
+  description: 'ENOENT, no such file or directory \'FileDoesNotExist.here\'',
+  stacktrace: [ 'Error: ENOENT, no such file or directory \'FileDoesNotExist.here\'' ] }
+```
+
 <a name="optional-invocation" />
 ## Optional Callback Invocation
 
@@ -130,6 +155,7 @@ The `errs` modules exposes some simple utility methods:
 * `.register(type, proto)`: Registers the specified `proto` to `type` for future calls to `errors.create(type, opts)`.
 * `.unregister(type)`: Unregisters the specified `type` for future calls to `errors.create(type, opts)`.
 * `.handle(err, callback)`: Attempts to instantiate the given `error`. If the `error` is already a properly formed `error` object (with a `stack` property) it will not be modified.
+* `.merge(err, type, opts)`: Merges an existing error with a new error instance for with the specified `type` and `opts`.
 
 ## Installation
 
